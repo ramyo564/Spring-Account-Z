@@ -6,7 +6,7 @@
 
 ## ERD
 
-![account_table](https://github.com/ramyo564/Spring-Account-Z/assets/103474568/5ae269f9-de70-47be-af64-7d6451c42816)
+![account_table](https://github.com/ramyo564/Spring-Account-Z/assets/103474568/d40e55ff-4abe-42a8-b1da-c7c5e5e92b84)
 
 
 ## 1. 계좌 검색 기능
@@ -44,6 +44,7 @@
 2. 송금 기능
     - 상대 거래 계좌 존재 여부 확인
     - 1,000,000 만원 넘는 거래일 경우 본인정보 다시 확인
+      - 2차 인증은 본인 이름,생년월일,이메일주소 입력
 
 ## 4. 로그인 / 로그아웃
 1. 계좌 접근 허가 기능 구현
