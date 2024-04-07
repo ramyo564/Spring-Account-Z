@@ -26,6 +26,7 @@ public class AccountUserEntity {
     private String name;
     private String email;
     private String birthDay;
+    private String password;
 
     @CreatedDate
     private LocalDateTime createdAt;
