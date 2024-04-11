@@ -17,13 +17,14 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Table(name = "transactions")
 public class TransactionEntity {
     @Id
     @GeneratedValue
     private Long id;
 
     @ManyToOne
-    private AccountUserEntity userId;
+    private UserEntity userId;
 
     @ManyToOne
     private AccountEntity account;
