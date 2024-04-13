@@ -1,6 +1,6 @@
 package com.example.accountz.webController;
 
-import com.example.accountz.model.User;
+import com.example.accountz.model.UserDto;
 import com.example.accountz.security.TokenProvider;
 import com.example.accountz.service.UserService;
 import jakarta.validation.Valid;
@@ -22,17 +22,18 @@ public class UserController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(
-            @RequestBody @Valid User.SignUp request) {
+            @RequestBody @Valid UserDto.SignUp request) {
 
         this.userService.registerUser(request);
 
-        return ResponseEntity.ok().body("회원가입 완료");
+        return ResponseEntity.ok().body(
+                new ApiResponse("회원가입","Success"));
 
     }
 
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(
-            @RequestBody User.SignIn request) {
+            @RequestBody UserDto.SignIn request) {
 
         var member =
                 this.userService.authenticateUser(request);
@@ -42,8 +43,10 @@ public class UserController {
                         member.getEmail()
                 );
 
-        return ResponseEntity.ok(token);
+
+        return ResponseEntity.ok(new ApiResponse("Token",token));
 
 
     }
+
 }

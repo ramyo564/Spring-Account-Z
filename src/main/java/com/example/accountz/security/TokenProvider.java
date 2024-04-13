@@ -1,7 +1,6 @@
 package com.example.accountz.security;
 
 
-import com.example.accountz.model.User;
 import com.example.accountz.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor

@@ -1,10 +1,9 @@
 package com.example.accountz.service;
 
 import com.example.accountz.exception.GlobalException;
-import com.example.accountz.model.User;
+import com.example.accountz.model.UserDto;
 import com.example.accountz.persist.entity.UserEntity;
 import com.example.accountz.persist.repository.UserRepository;
-import com.example.accountz.type.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import static com.example.accountz.type.ErrorCode.*;
 
@@ -24,7 +22,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserEntity registerUser(User.SignUp member)
+    public UserEntity registerUser(UserDto.SignUp member)
             throws GlobalException {
         boolean exists =
                 this.userRepository.existsByEmail(
@@ -42,7 +40,7 @@ public class UserService implements UserDetailsService {
 
     }
 
-    private UserEntity saveUser(User.SignUp member) {
+    private UserEntity saveUser(UserDto.SignUp member) {
 
         try {
             return this.userRepository.save(member.toEntity());
@@ -54,7 +52,7 @@ public class UserService implements UserDetailsService {
 
     }
 
-    public UserEntity authenticateUser(User.SignIn member)
+    public UserEntity authenticateUser(UserDto.SignIn member)
             throws GlobalException {
         var user =
                 this.userRepository.findByEmail(

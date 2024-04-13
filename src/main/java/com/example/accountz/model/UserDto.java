@@ -9,7 +9,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class User {
+public class UserDto {
+
     @Data
     public static class SignIn {
         private String email;
