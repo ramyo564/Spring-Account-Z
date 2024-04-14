@@ -68,6 +68,7 @@ class UserControllerTest {
         signUpDto.setBirthDay(
                 LocalDate.of(1990, 5, 15));
 
+        
         // 결과 확인
         ResultActions resultActions =
                 mockMvc.perform(
