@@ -6,7 +6,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,7 +17,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TokenProvider {
@@ -23,6 +28,10 @@ public class TokenProvider {
     private static final long TOKEN_EXPIRE_TIME = 1000 * 60 * 60;
 
     private final UserService userService;
+
+    @Getter
+    private final Set<String> blacklist =
+            new ConcurrentSkipListSet<>();
 
     @Value("${spring.jwt.secret}")
     private String secretKey;
@@ -72,5 +81,13 @@ public class TokenProvider {
                 userDetails,
                 "",
                 userDetails.getAuthorities());
+    }
+
+    public boolean isBlacklisted(String token) {
+        return this.blacklist.contains(token);
+    }
+
+    public void addToBlacklist(String token) {
+        this.blacklist.add(token);
     }
 }

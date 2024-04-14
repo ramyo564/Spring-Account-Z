@@ -7,10 +7,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -31,7 +33,7 @@ public class UserController {
 
     }
 
-    @PostMapping("/sign-in")
+    @PostMapping("/log-in")
     public ResponseEntity<?> signIn(
             @RequestBody UserDto.SignIn request) {
 
@@ -46,7 +48,23 @@ public class UserController {
 
         return ResponseEntity.ok(new ApiResponse("Token",token));
 
-
     }
 
+    @PostMapping("/log-out")
+    public ResponseEntity<?> logout(
+            @RequestHeader("Authorization") String token) {
+        // Authorization 헤더에서 토큰 추출
+        String jwt = token.substring(7); // "Bearer " 제거
+
+        // 토큰을 블랙리스트에 등록
+        this.tokenProvider.addToBlacklist(jwt);
+
+        // 로그아웃 성공 응답 반환
+        return ResponseEntity.ok().build();
+
+    }
+    @GetMapping("/blacklist")
+    public ResponseEntity<Set<String>> getBlacklist() {
+        return ResponseEntity.ok(tokenProvider.getBlacklist());
+    }
 }

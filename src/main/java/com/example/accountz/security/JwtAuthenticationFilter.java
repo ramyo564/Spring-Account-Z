@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -30,15 +31,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String resolveTokenFromRequest(HttpServletRequest request) {
         String token = request.getHeader(TOKEN_HEADER);
 
-        if (!ObjectUtils.isEmpty(token) && token.startsWith(TOKEN_PREFIX)) {
+        if (!StringUtils.isEmpty(token) && token.startsWith(TOKEN_PREFIX)) {
             return token.substring(TOKEN_PREFIX.length());
         }
         return null;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
         String token = this.resolveTokenFromRequest(request);
+
+        // 토큰이 블랙리스트에 등록되었는지 확인
+        if (token != null && this.tokenProvider.isBlacklisted(token)) {
+            // 블랙리스트에 등록된 토큰이면 인증 실패 처리
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            return;
+        }
 
         if (StringUtils.hasText(token)
                 && this.tokenProvider.validateToken(token)) {
@@ -52,6 +63,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     request.getRequestURI()));
         }
         filterChain.doFilter(request, response);
-
     }
 }
