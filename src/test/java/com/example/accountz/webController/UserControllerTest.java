@@ -5,9 +5,8 @@ import com.example.accountz.persist.entity.UserEntity;
 import com.example.accountz.persist.repository.UserRepository;
 import com.example.accountz.security.TokenProvider;
 import com.example.accountz.service.UserService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.aspectj.lang.annotation.Before;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -19,7 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
@@ -31,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(UserController.class)
-class SuccessUserControllerTest {
+class UserControllerTest {
 
     @MockBean
     private UserService userService;
@@ -54,6 +52,7 @@ class SuccessUserControllerTest {
 
     @WithMockUser
     @Test
+    @DisplayName("회원가입 성공")
     void signUp() throws Exception {
         //given
         given(userRepository.existsByEmail(anyString()))
@@ -89,6 +88,7 @@ class SuccessUserControllerTest {
 
     @WithMockUser
     @Test
+    @DisplayName("로그인 성공")
     void signIn()throws Exception {
         // Given
 
