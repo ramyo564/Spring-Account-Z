@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -124,5 +125,24 @@ class UserControllerTest {
                 .value("generated_token"));
 
     }
+    @WithMockUser
+    @Test
+    @DisplayName("로그아웃 성공")
+    void logoutSuccess() throws Exception {
+        // given
+        given(tokenProvider.isBlacklisted(anyString())).willReturn(false);
 
+        // when
+        String token = "Bearer abc123";
+
+        // then
+        mockMvc.perform(
+                        post("/auth/log-out")
+                                .with(csrf())
+                                .header("Authorization", token)
+                )
+                .andExpect(status().isOk());
+
+        then(tokenProvider).should().addToBlacklist("abc123");
+    }
 }
