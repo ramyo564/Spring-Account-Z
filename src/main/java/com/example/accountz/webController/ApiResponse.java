@@ -9,13 +9,13 @@ import lombok.Setter;
 @Setter
 public class ApiResponse {
 
-    private String title;
-    private String detail;
+  private String title;
+  private String detail;
 
-    public ApiResponse toEntity() {
-        return ApiResponse.builder()
-                .title(this.title)
-                .detail(this.detail)
-                .build();
-    }
+  public ApiResponse toEntity() {
+    return ApiResponse.builder()
+        .title(this.title)
+        .detail(this.detail)
+        .build();
+  }
 }
