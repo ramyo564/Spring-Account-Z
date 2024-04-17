@@ -91,7 +91,7 @@ class UserControllerTest {
     @WithMockUser
     @Test
     @DisplayName("로그인 성공")
-    void signIn()throws Exception {
+    void logIn()throws Exception {
         // Given
 
         UserDto.SignIn signInRequest = new UserDto.SignIn();
@@ -112,12 +112,12 @@ class UserControllerTest {
                 .willReturn(token);
         //when
         //then
-        mockMvc.perform(post("/auth/sign-in")
+        mockMvc.perform(post("/auth/log-in")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 signInRequest)))
-                //.andDo(print())
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title")
                         .value("Token"))
