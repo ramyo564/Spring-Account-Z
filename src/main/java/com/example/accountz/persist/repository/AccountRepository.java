@@ -14,4 +14,6 @@ public interface AccountRepository
 
     Optional<AccountEntity> findFirstByOrderByIdDesc();
 
+    Optional<AccountEntity> findByAccountNumber(String AccountNumber);
+
 }
