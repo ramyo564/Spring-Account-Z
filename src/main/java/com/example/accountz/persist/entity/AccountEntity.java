@@ -1,6 +1,8 @@
 package com.example.accountz.persist.entity;
 
+import com.example.accountz.exception.GlobalException;
 import com.example.accountz.type.AccountStatus;
+import com.example.accountz.type.ErrorCode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
@@ -54,6 +56,14 @@ public class AccountEntity {
   private LocalDateTime createdAt;
   @LastModifiedDate
   private LocalDateTime updatedAt;
+
+  public void saveMoney(Long amount){
+    if(amount < 0){
+      throw new GlobalException(ErrorCode.NOT_MINUS_MONEY);
+    }
+    balance += amount;
+  }
+
 
   @Override
   public boolean equals(Object o) {

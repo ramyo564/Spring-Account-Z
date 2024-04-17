@@ -21,6 +21,11 @@ public enum ErrorCode {
     USER_ACCOUNT_UNMATCHED("사용자와 계좌의 소유주가 다릅니다."),
     ACCOUNT_ALREADY_UNREGISTERED("계좌가 이미 해지되었습니다."),
     BALANCE_NOT_EMPTY("잔액이 있는 계좌는 해지할 수 없습니다."),
+
+    // Transaction
+    AMOUNT_EXCEED_BALANCE("거래금액이 잔액을 초과했습니다."),
+    NOT_MINUS_MONEY("0보다 작은 금액은 입금은 불가능합니다."),
+
     //
     INTERNAL_SERVER_ERROR("내부 서버 오류")
     ;

@@ -33,7 +33,7 @@ public class AccountController {
   @DeleteMapping("/user")
   public DeleteAccountDto.Response deleteAccount(
       @RequestBody @Valid DeleteAccountDto.Request request) {
-    
+
     return DeleteAccountDto.Response.from(accountService.deleteAccount(
         JwtTokenExtract.currentUser().getId(),
         request.getAccountNumber()));
