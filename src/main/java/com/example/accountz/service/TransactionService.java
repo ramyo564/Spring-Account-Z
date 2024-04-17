@@ -32,13 +32,10 @@ public class TransactionService {
   @Transactional
   public TransactionDto saveMoney(
       Long userId, String accountNumber, Long amount) {
-    UserEntity user = userRepository
-        .findById(userId)
-        .orElseThrow(() ->
-            new GlobalException(ErrorCode.USER_NOT_FOUND));
+    UserEntity user = userRepository.findById(userId).orElseThrow(() ->
+        new GlobalException(ErrorCode.USER_NOT_FOUND));
     AccountEntity account = accountRepository
-        .findByAccountNumber(accountNumber)
-        .orElseThrow(() ->
+        .findByAccountNumber(accountNumber).orElseThrow(() ->
             new GlobalException(ErrorCode.ACCOUNT_NOT_FOUND));
 
     saveValidateMoney(amount, user, account);
@@ -67,11 +64,50 @@ public class TransactionService {
           ErrorCode.ACCOUNT_ALREADY_UNREGISTERED
       );
     }
-    if (0 > amount) {
-      throw new GlobalException(ErrorCode.NOT_MINUS_MONEY);
-    }
   }
 
+  @Transactional
+  public TransactionDto useBalance(
+      Long userId, String accountNumber, Long amount) {
+
+    UserEntity user = userRepository
+        .findById(userId)
+        .orElseThrow(() ->
+            new GlobalException(ErrorCode.USER_NOT_FOUND));
+    AccountEntity account = accountRepository
+        .findByAccountNumber(accountNumber)
+        .orElseThrow(() ->
+            new GlobalException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+    validateUseBalance(user, account, amount);
+
+    account.useBalance(amount);
+
+    return TransactionDto.fromEntity(
+        saveTransaction(
+            TransactionType.USE,
+            TransactionResultType.SUCCESS,
+            account,
+            amount
+        )
+    );
+  }
+
+  private void validateUseBalance(
+      UserEntity user, AccountEntity account, Long amount) {
+    if (!Objects.equals(
+        user.getId(), account.getUser().getId())) {
+      throw new GlobalException(ErrorCode.USER_ACCOUNT_UNMATCHED);
+    }
+    if (account.getAccountStatus() != AccountStatus.ACTIVATED) {
+      throw new GlobalException(
+          ErrorCode.ACCOUNT_ALREADY_UNREGISTERED
+      );
+    }
+    if (account.getBalance() < amount) {
+      throw new GlobalException(ErrorCode.AMOUNT_EXCEED_BALANCE);
+    }
+  }
 
   private TransactionEntity saveTransaction(
       TransactionType transactionType,
@@ -98,12 +134,10 @@ public class TransactionService {
   @Transactional
   public void saveFailedUseTransaction(
       String accountNumber, Long amount) {
-    AccountEntity account =
-        accountRepository.findByAccountNumber(accountNumber)
-            .orElseThrow(() ->
-                new GlobalException(
-                    ErrorCode.ACCOUNT_NOT_FOUND)
-            );
+    AccountEntity account = accountRepository.findByAccountNumber(
+            accountNumber)
+        .orElseThrow(
+            () -> new GlobalException(ErrorCode.ACCOUNT_NOT_FOUND));
 
     saveTransaction(
         TransactionType.USE,

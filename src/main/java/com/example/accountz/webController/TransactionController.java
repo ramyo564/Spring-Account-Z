@@ -25,7 +25,7 @@ public class TransactionController {
   @PostMapping("save-money")
   public UseBalanceDto.Response userSaveMoney(
       @Valid @RequestBody UseBalanceDto.Request request
-  ){
+  ) {
     try {
       return UseBalanceDto.Response.from(transactionService.saveMoney(
           JwtTokenExtract.currentUser().getId(),
@@ -33,7 +33,7 @@ public class TransactionController {
           request.getAmount()));
 
     } catch (GlobalException e) {
-      log.error("Failed to use balance.");
+      log.error("Failed to save balance.");
 
       transactionService.saveFailedUseTransaction(
           request.getAccountNumber(),
@@ -43,4 +43,24 @@ public class TransactionController {
     }
   }
 
+  @PreAuthorize("hasRole('USER')")
+  @PostMapping("withdraw")
+  public UseBalanceDto.Response useBalance(
+      @Valid @RequestBody UseBalanceDto.Request request
+  ) {
+    try {
+      return UseBalanceDto.Response.from(transactionService.useBalance(
+          JwtTokenExtract.currentUser().getId(),
+          request.getAccountNumber(),
+          request.getAmount()));
+
+    } catch (GlobalException e) {
+      log.error("Failed to use balance.");
+      transactionService.saveFailedUseTransaction(
+          request.getAccountNumber(),
+          request.getAmount()
+      );
+      throw e;
+    }
+  }
 }

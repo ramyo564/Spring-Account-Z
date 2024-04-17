@@ -64,7 +64,13 @@ public class AccountEntity {
     balance += amount;
   }
 
+  public void useBalance(Long amount){
+    if (amount > balance){
+      throw new GlobalException(ErrorCode.AMOUNT_EXCEED_BALANCE);
+    }
+    balance -= amount;
 
+  }
   @Override
   public boolean equals(Object o) {
     if (this == o) {
