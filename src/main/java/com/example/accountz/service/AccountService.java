@@ -26,10 +26,12 @@ public class AccountService {
 
   private final AccountRepository accountRepository;
   private final UserRepository userRepository;
+  private final JwtTokenExtract jwtTokenExtract;
+
 
   @Transactional
   public AccountDto createAccount() {
-    Long userId = JwtTokenExtract.currentUser().getId();
+    Long userId = jwtTokenExtract.currentUser().getId();
 
     UserEntity user = userRepository.findById(userId).orElseThrow(() ->
         new GlobalException(USER_NOT_FOUND));

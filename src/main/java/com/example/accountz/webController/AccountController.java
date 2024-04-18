@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
 
   private final AccountService accountService;
+  private final JwtTokenExtract jwtTokenExtract;
 
   @PreAuthorize("hasRole('USER')")
   @PostMapping("/user")
@@ -35,7 +36,7 @@ public class AccountController {
       @RequestBody @Valid DeleteAccountDto.Request request) {
 
     return DeleteAccountDto.Response.from(accountService.deleteAccount(
-        JwtTokenExtract.currentUser().getId(),
+        jwtTokenExtract.currentUser().getId(),
         request.getAccountNumber()));
   }
 

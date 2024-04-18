@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TransactionController {
 
   private final TransactionService transactionService;
+  private final JwtTokenExtract jwtTokenExtract;
 
   @PreAuthorize("hasRole('USER')")
   @PostMapping("save-money")
@@ -28,7 +29,7 @@ public class TransactionController {
   ) {
     try {
       return UseBalanceDto.Response.from(transactionService.saveMoney(
-          JwtTokenExtract.currentUser().getId(),
+          jwtTokenExtract.currentUser().getId(),
           request.getAccountNumber(),
           request.getAmount()));
 
@@ -50,7 +51,7 @@ public class TransactionController {
   ) {
     try {
       return UseBalanceDto.Response.from(transactionService.useBalance(
-          JwtTokenExtract.currentUser().getId(),
+          jwtTokenExtract.currentUser().getId(),
           request.getAccountNumber(),
           request.getAmount()));
 
