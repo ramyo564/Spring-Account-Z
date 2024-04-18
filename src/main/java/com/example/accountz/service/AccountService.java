@@ -93,6 +93,5 @@ public class AccountService {
       throw new GlobalException(ErrorCode.BALANCE_NOT_EMPTY);
     }
   }
-
 }
 

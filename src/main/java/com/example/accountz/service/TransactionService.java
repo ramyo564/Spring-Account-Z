@@ -47,10 +47,7 @@ public class TransactionService {
             TransactionType.USE,
             TransactionResultType.SUCCESS,
             account,
-            amount
-        )
-    );
-
+            amount));
   }
 
   private static void saveValidateMoney(Long amount, UserEntity user,
@@ -61,8 +58,7 @@ public class TransactionService {
     }
     if (account.getAccountStatus() != AccountStatus.ACTIVATED) {
       throw new GlobalException(
-          ErrorCode.ACCOUNT_ALREADY_UNREGISTERED
-      );
+          ErrorCode.ACCOUNT_ALREADY_UNREGISTERED);
     }
   }
 
@@ -72,8 +68,7 @@ public class TransactionService {
 
     UserEntity user = userRepository.findById(userId)
         .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
-    AccountEntity account = accountRepository.findByAccountNumber(
-            accountNumber)
+    AccountEntity account = accountRepository.findByAccountNumber(accountNumber)
         .orElseThrow(
             () -> new GlobalException(ErrorCode.ACCOUNT_NOT_FOUND));
 
@@ -97,8 +92,7 @@ public class TransactionService {
     }
     if (account.getAccountStatus() != AccountStatus.ACTIVATED) {
       throw new GlobalException(
-          ErrorCode.ACCOUNT_ALREADY_UNREGISTERED
-      );
+          ErrorCode.ACCOUNT_ALREADY_UNREGISTERED);
     }
     if (account.getBalance() < amount) {
       throw new GlobalException(ErrorCode.AMOUNT_EXCEED_BALANCE);
@@ -123,8 +117,7 @@ public class TransactionService {
                     .toString()
                     .replace("-", ""))
             .transactedAt(LocalDateTime.now())
-            .build()
-    );
+            .build());
   }
 
   @Transactional
@@ -138,8 +131,6 @@ public class TransactionService {
         TransactionType.USE,
         TransactionResultType.FAIL,
         account,
-        amount
-    );
+        amount);
   }
-
 }
