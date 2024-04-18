@@ -70,14 +70,12 @@ public class TransactionService {
   public TransactionDto useBalance(
       Long userId, String accountNumber, Long amount) {
 
-    UserEntity user = userRepository
-        .findById(userId)
-        .orElseThrow(() ->
-            new GlobalException(ErrorCode.USER_NOT_FOUND));
-    AccountEntity account = accountRepository
-        .findByAccountNumber(accountNumber)
-        .orElseThrow(() ->
-            new GlobalException(ErrorCode.ACCOUNT_NOT_FOUND));
+    UserEntity user = userRepository.findById(userId)
+        .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+    AccountEntity account = accountRepository.findByAccountNumber(
+            accountNumber)
+        .orElseThrow(
+            () -> new GlobalException(ErrorCode.ACCOUNT_NOT_FOUND));
 
     validateUseBalance(user, account, amount);
 
@@ -88,9 +86,7 @@ public class TransactionService {
             TransactionType.USE,
             TransactionResultType.SUCCESS,
             account,
-            amount
-        )
-    );
+            amount));
   }
 
   private void validateUseBalance(
@@ -135,9 +131,8 @@ public class TransactionService {
   public void saveFailedUseTransaction(
       String accountNumber, Long amount) {
     AccountEntity account = accountRepository.findByAccountNumber(
-            accountNumber)
-        .orElseThrow(
-            () -> new GlobalException(ErrorCode.ACCOUNT_NOT_FOUND));
+        accountNumber).orElseThrow(() ->
+        new GlobalException(ErrorCode.ACCOUNT_NOT_FOUND));
 
     saveTransaction(
         TransactionType.USE,
