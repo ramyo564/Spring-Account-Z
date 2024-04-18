@@ -1,25 +1,36 @@
 package com.example.accountz.webController;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.accountz.model.AccountDto;
+import com.example.accountz.model.DeleteAccountDto;
+import com.example.accountz.persist.entity.AccountEntity;
+import com.example.accountz.persist.entity.TransactionEntity;
 import com.example.accountz.persist.entity.UserEntity;
+import com.example.accountz.persist.repository.AccountRepository;
+import com.example.accountz.persist.repository.TransactionRepository;
 import com.example.accountz.security.JwtTokenExtract;
 import com.example.accountz.security.TokenProvider;
 import com.example.accountz.service.AccountService;
 import com.example.accountz.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -49,6 +60,12 @@ class AccountControllerTest {
   @MockBean
   private JwtTokenExtract jwtTokenExtract;
 
+  @MockBean
+  private AccountRepository accountRepository;
+
+  @Autowired
+  private ObjectMapper objectMapper;
+
   private UserEntity user;
   private String accessToken;
 
@@ -64,6 +81,14 @@ class AccountControllerTest {
     given(tokenProvider.generateToken(user.getEmail()))
         .willReturn("access_token");
     accessToken = "Bearer access_token";
+    UserDetails userDetails = user;
+    given(userService.loadUserByUsername(anyString())).willReturn(
+        userDetails);
+
+    given(tokenProvider.getAuthentication(anyString())).willReturn(
+        new UsernamePasswordAuthenticationToken(
+            userDetails, "", userDetails.getAuthorities()));
+    given(jwtTokenExtract.currentUser()).willReturn(user);
 
   }
 
@@ -72,7 +97,7 @@ class AccountControllerTest {
   void createAccountTest() throws Exception {
     // given
     AccountDto accountDto = AccountDto.builder()
-        .userId(1L)
+        .userId(user.getId())
         .accountNumber("1000000001")
         .balance(0L)
         .registeredAt(LocalDateTime.now())
@@ -80,16 +105,9 @@ class AccountControllerTest {
 
     given(accountService.createAccount()).willReturn(accountDto);
 
-    UserDetails userDetails = user;
-    given(userService.loadUserByUsername(anyString())).willReturn(userDetails);
-
-    given(tokenProvider.getAuthentication(anyString())).willReturn(
-        new UsernamePasswordAuthenticationToken(
-            userDetails,"",userDetails.getAuthorities()));
-
     // when
     ResultActions resultActions = mockMvc.perform(post("/account/user")
-            .with(csrf())
+        .with(csrf())
         .header("Authorization", accessToken)
         .contentType(MediaType.APPLICATION_JSON));
 
@@ -105,5 +123,53 @@ class AccountControllerTest {
 
     verify(accountService, times(1))
         .createAccount();
+  }
+
+  @Test
+  @WithMockUser(username = "test@example.com", roles = "USER")
+  void deleteAccountTest() throws Exception {
+    // given
+    AccountDto accountDto = AccountDto.builder()
+        .userId(user.getId())
+        .accountNumber("1000000001")
+        .balance(0L)
+        .registeredAt(LocalDateTime.now())
+        .build();
+
+    AccountDto deleteAccountDto = AccountDto.builder()
+        .userId(user.getId())
+        .accountNumber("1000000001")
+        .balance(0L)
+        .unRegisteredAt(LocalDateTime.now())
+        .build();
+    given(accountService.createAccount()).willReturn(accountDto);
+
+    given(accountService.deleteAccount(anyLong(), anyString()))
+        .willReturn(deleteAccountDto);
+
+    // when
+    accountService.createAccount();
+    ResultActions resultActions = mockMvc.perform(delete("/account/user")
+        .with(csrf())
+        .header("Authorization", accessToken)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(
+            new DeleteAccountDto.Request("1000000001")
+        )));
+
+    // then
+    resultActions
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.userId").value(accountDto.getUserId()))
+        .andExpect(jsonPath("$.accountNumber").value(
+            accountDto.getAccountNumber()))
+        .andExpect(jsonPath("$.unRegisteredAt").isNotEmpty());
+
+    ArgumentCaptor<AccountEntity> captor = ArgumentCaptor.forClass(
+        AccountEntity.class);
+    verify(accountService, times(1))
+        .createAccount();
+    verify(accountService, times(1))
+        .deleteAccount(anyLong(), anyString());
   }
 }
