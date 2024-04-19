@@ -36,7 +36,7 @@ public class TransactionEntity {
   private Long id;
 
   @ManyToOne
-  private UserEntity userId;
+  private UserEntity user;
 
   @ManyToOne
   private AccountEntity account;
