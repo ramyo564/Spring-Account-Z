@@ -1,6 +1,8 @@
 package com.example.accountz.persist.entity;
 
+import com.example.accountz.exception.GlobalException;
 import com.example.accountz.type.AccountStatus;
+import com.example.accountz.type.ErrorCode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
@@ -16,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -24,6 +27,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Builder
 @Entity
 @Getter
+@Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
@@ -53,6 +57,20 @@ public class AccountEntity {
   @LastModifiedDate
   private LocalDateTime updatedAt;
 
+  public void saveMoney(Long amount){
+    if(amount < 0){
+      throw new GlobalException(ErrorCode.NOT_MINUS_MONEY);
+    }
+    balance += amount;
+  }
+
+  public void useBalance(Long amount){
+    if (amount > balance){
+      throw new GlobalException(ErrorCode.AMOUNT_EXCEED_BALANCE);
+    }
+    balance -= amount;
+
+  }
   @Override
   public boolean equals(Object o) {
     if (this == o) {

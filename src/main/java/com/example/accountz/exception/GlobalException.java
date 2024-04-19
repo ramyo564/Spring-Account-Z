@@ -21,6 +21,10 @@ public class GlobalException extends RuntimeException {
     this.errorCode = errorCode;
     this.errorMessage = errorCode.getDescription();
   }
+    @Override
+    public String getMessage() {
+        return this.errorMessage;
+    }
 }
 
 
