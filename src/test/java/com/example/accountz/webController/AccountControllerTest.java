@@ -1,6 +1,5 @@
 package com.example.accountz.webController;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -15,19 +14,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.example.accountz.model.AccountDto;
 import com.example.accountz.model.DeleteAccountDto;
 import com.example.accountz.persist.entity.AccountEntity;
-import com.example.accountz.persist.entity.TransactionEntity;
 import com.example.accountz.persist.entity.UserEntity;
 import com.example.accountz.persist.repository.AccountRepository;
-import com.example.accountz.persist.repository.TransactionRepository;
 import com.example.accountz.security.JwtTokenExtract;
 import com.example.accountz.security.TokenProvider;
 import com.example.accountz.service.AccountService;
 import com.example.accountz.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,7 +36,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-@Slf4j
+
 @WebMvcTest(AccountController.class)
 class AccountControllerTest {
 
