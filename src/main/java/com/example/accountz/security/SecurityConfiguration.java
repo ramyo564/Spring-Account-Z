@@ -23,36 +23,38 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final JwtAuthenticationFilter authenticationFilter;
+  private final JwtAuthenticationFilter authenticationFilter;
 
-    @Bean
-    protected SecurityFilterChain filterChain(HttpSecurity http)
-            throws Exception {
-        http.httpBasic(HttpBasicConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(
-                        configurer -> configurer.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(
-                        authorize -> authorize.requestMatchers(
-                                "/auth/sign-up",
-                                "/auth/log-in",
-                                "/auth/log-out"
-                                )
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated()
-
+  @Bean
+  protected SecurityFilterChain filterChain(HttpSecurity http)
+      throws Exception {
+    http.httpBasic(HttpBasicConfigurer::disable)
+        .csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(
+            configurer -> configurer.sessionCreationPolicy(
+                SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(
+            authorize -> authorize.requestMatchers(
+                    "/auth/sign-up",
+                    "/auth/log-in",
+                    "/auth/log-out"
                 )
-                .addFilterBefore(this.authenticationFilter
-                        , UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
+                .permitAll()
+                .anyRequest()
+                .authenticated()
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers(
-                new AntPathRequestMatcher("/h2-console/**"));
-    }
+        )
+
+        .addFilterBefore(this.authenticationFilter
+            , UsernamePasswordAuthenticationFilter.class);
+
+    return http.build();
+  }
+
+  @Bean
+  public WebSecurityCustomizer webSecurityCustomizer() {
+    return (web) -> web.ignoring().requestMatchers(
+        new AntPathRequestMatcher("/h2-console/**"));
+  }
 
 }
