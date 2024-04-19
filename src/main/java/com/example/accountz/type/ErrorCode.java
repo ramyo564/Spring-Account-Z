@@ -21,10 +21,16 @@ public enum ErrorCode {
     USER_ACCOUNT_UNMATCHED("사용자와 계좌의 소유주가 다릅니다."),
     ACCOUNT_ALREADY_UNREGISTERED("계좌가 이미 해지되었습니다."),
     BALANCE_NOT_EMPTY("잔액이 있는 계좌는 해지할 수 없습니다."),
+    RECEIVER_ACCOUNT_UNREGISTERED("받는 이의 계좌가 해지되어 송금이 불가능 합니다."),
 
     // Transaction
     AMOUNT_EXCEED_BALANCE("거래금액이 잔액을 초과했습니다."),
     NOT_MINUS_MONEY("0보다 작은 금액은 입금은 불가능합니다."),
+    UNMATCHED_USER("이름이 일치하지 않습니다."),
+    UNMATCHED_BIRTHDAY("생년월일이 일치하지 않습니다."),
+    UNMATCHED_EMAIL("생년월일이 일치하지 않습니다."),
+    UNMATCHED_PASSWORD("패스워드가 일치하지 않습니다."),
+
 
     //
     INTERNAL_SERVER_ERROR("내부 서버 오류")

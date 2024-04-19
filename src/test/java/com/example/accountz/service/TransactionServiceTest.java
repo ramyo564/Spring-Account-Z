@@ -145,7 +145,11 @@ class TransactionServiceTest {
     // Given
     String accountNumber = "123456789";
     Long amount = 10000L;
+    Long userId = 1L;
 
+    UserEntity user = UserEntity.builder()
+        .id(userId)
+        .build();
     AccountEntity account = AccountEntity.builder()
         .id(1L)
         .balance(amount)
@@ -170,7 +174,7 @@ class TransactionServiceTest {
     );
 
     // When
-    transactionService.saveFailedUseTransaction(accountNumber, amount);
+    transactionService.saveFailedUseTransaction(user, accountNumber, amount);
 
     // Then
     verify(accountRepository, times(1))

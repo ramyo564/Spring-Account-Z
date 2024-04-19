@@ -1,6 +1,8 @@
 package com.example.accountz.webController;
 
 import com.example.accountz.exception.GlobalException;
+import com.example.accountz.model.SendUnderMillionMoneyDto;
+import com.example.accountz.model.SendOverMillionMoneyDto;
 import com.example.accountz.model.UseBalanceDto;
 import com.example.accountz.security.JwtTokenExtract;
 import com.example.accountz.service.TransactionService;
@@ -37,6 +39,7 @@ public class TransactionController {
       log.error("Failed to save balance.");
 
       transactionService.saveFailedUseTransaction(
+          jwtTokenExtract.currentUser(),
           request.getAccountNumber(),
           request.getAmount()
       );
@@ -58,10 +61,64 @@ public class TransactionController {
     } catch (GlobalException e) {
       log.error("Failed to use balance.");
       transactionService.saveFailedUseTransaction(
+          jwtTokenExtract.currentUser(),
           request.getAccountNumber(),
           request.getAmount()
       );
       throw e;
     }
   }
+
+  @PreAuthorize("hasRole('USER')")
+  @PostMapping("under-million-send-money")
+  public SendUnderMillionMoneyDto.Response sendMoney(
+      @Valid @RequestBody SendUnderMillionMoneyDto.Request request
+  ) {
+    try {
+      return SendUnderMillionMoneyDto.Response.from(
+          transactionService.underMillionSendMoney(
+              jwtTokenExtract.currentUser().getId(),
+              request.getUserAccountNumber(),
+              request.getReceiverAccountNumber(),
+              request.getAmount()));
+
+    } catch (GlobalException e) {
+      log.error("Failed to use balance.");
+      transactionService.saveFailedUseTransaction(
+          jwtTokenExtract.currentUser(),
+          request.getUserAccountNumber(),
+          request.getAmount()
+      );
+      throw e;
+    }
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @PostMapping("over-million-send-money")
+  public SendOverMillionMoneyDto.Response overMillionSendMoney(
+      @Valid @RequestBody SendOverMillionMoneyDto.Request request
+  ) {
+    try {
+      return SendOverMillionMoneyDto.Response.from(
+          transactionService.overMillionSendMoney(
+              jwtTokenExtract.currentUser().getId(),
+              request.getUserAccountNumber(),
+              request.getUserName(),
+              request.getBirthDay(),
+              request.getEmail(),
+              request.getPassword(),
+              request.getReceiverAccountNumber(),
+              request.getAmount()));
+
+    } catch (GlobalException e) {
+      log.error("Failed to use balance.");
+      transactionService.saveFailedUseTransaction(
+          jwtTokenExtract.currentUser(),
+          request.getUserAccountNumber(),
+          request.getAmount()
+      );
+      throw e;
+    }
+  }
 }
+
