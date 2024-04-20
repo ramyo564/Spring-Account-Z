@@ -40,8 +40,10 @@ public class TransactionEntity {
 
   @ManyToOne
   private AccountEntity account;
+
   private Long amount;
   private Long balanceSnapshot;
+  private String receiverAccountNumber;
 
   @CreatedDate
   private LocalDateTime createdAt;

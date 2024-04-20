@@ -19,6 +19,7 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 public class SendOverMillionMoneyDto {
+
   @Getter
   @Setter
   @NoArgsConstructor
@@ -26,7 +27,7 @@ public class SendOverMillionMoneyDto {
   public static class Request {
 
     @NotBlank
-    @Size(min=10, max=10)
+    @Size(min = 10, max = 10)
     private String userAccountNumber;
 
     @NotBlank
@@ -48,7 +49,7 @@ public class SendOverMillionMoneyDto {
     private String password;
 
     @NotBlank
-    @Size(min=10, max=10)
+    @Size(min = 10, max = 10)
     private String receiverAccountNumber;
 
     @NotNull
@@ -63,7 +64,9 @@ public class SendOverMillionMoneyDto {
   @AllArgsConstructor
   @Builder
   public static class Response {
+
     private String userAccountNumber;
+    private String receiverAccountNumber;
     private TransactionResultType transactionResultType;
     private String transactionId;
     private Long amount;
@@ -72,7 +75,8 @@ public class SendOverMillionMoneyDto {
 
     public static Response from(TransactionDto transactionDto) {
       return Response.builder()
-          .userAccountNumber(transactionDto.getAccountNumber())
+          .userAccountNumber(transactionDto.getUserAccountNumber())
+          .receiverAccountNumber(transactionDto.getReceiverAccountNumber())
           .transactionResultType(transactionDto.getTransactionResultType())
           .transactionId(transactionDto.getTransactionId())
           .amount(transactionDto.getAmount())

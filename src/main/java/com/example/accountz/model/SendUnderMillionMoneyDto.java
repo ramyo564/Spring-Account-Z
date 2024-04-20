@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 public class SendUnderMillionMoneyDto {
+
   @Getter
   @Setter
   @NoArgsConstructor
@@ -21,16 +22,16 @@ public class SendUnderMillionMoneyDto {
   public static class Request {
 
     @NotBlank
-    @Size(min=10, max=10)
+    @Size(min = 10, max = 10)
     private String userAccountNumber;
 
     @NotBlank
-    @Size(min=10, max=10)
+    @Size(min = 10, max = 10)
     private String receiverAccountNumber;
 
     @NotNull
     @Min(1)
-    @Max(1000_000)
+    @Max(999_999)
     private Long amount;
   }
 
@@ -40,7 +41,9 @@ public class SendUnderMillionMoneyDto {
   @AllArgsConstructor
   @Builder
   public static class Response {
+
     private String userAccountNumber;
+    private String receiverAccountNumber;
     private TransactionResultType transactionResultType;
     private String transactionId;
     private Long amount;
@@ -49,7 +52,8 @@ public class SendUnderMillionMoneyDto {
 
     public static Response from(TransactionDto transactionDto) {
       return Response.builder()
-          .userAccountNumber(transactionDto.getAccountNumber())
+          .userAccountNumber(transactionDto.getUserAccountNumber())
+          .receiverAccountNumber(transactionDto.getReceiverAccountNumber())
           .transactionResultType(transactionDto.getTransactionResultType())
           .transactionId(transactionDto.getTransactionId())
           .amount(transactionDto.getAmount())
