@@ -58,8 +58,9 @@ public class AccountEntity {
   @LastModifiedDate
   private LocalDateTime updatedAt;
 
-  public void saveMoney(Long addMoney) {
-    if (addMoney < 0) {
+
+  public void saveMoney(Long addMoney){
+    if(addMoney < 0){
       throw new GlobalException(ErrorCode.NOT_MINUS_MONEY);
     }
     balance += addMoney;
