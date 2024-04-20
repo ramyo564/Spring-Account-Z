@@ -1,8 +1,16 @@
 package com.example.accountz.webController;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.accountz.model.CancelBalanceDto;
 import com.example.accountz.model.SendOverMillionMoneyDto;
@@ -10,7 +18,6 @@ import com.example.accountz.model.SendUnderMillionMoneyDto;
 import com.example.accountz.model.TransactionDto;
 import com.example.accountz.model.UseBalanceDto;
 import com.example.accountz.persist.entity.UserEntity;
-import com.example.accountz.persist.repository.TransactionRepository;
 import com.example.accountz.security.JwtTokenExtract;
 import com.example.accountz.security.TokenProvider;
 import com.example.accountz.service.TransactionService;
@@ -19,6 +26,7 @@ import com.example.accountz.type.TransactionResultType;
 import com.example.accountz.type.TransactionType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,12 +39,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
-import java.time.LocalDateTime;
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TransactionController.class)
 class TransactionControllerTest {
@@ -58,9 +60,6 @@ class TransactionControllerTest {
 
   @MockBean
   private UserService userService;
-
-  @MockBean
-  private TransactionRepository transactionRepository;
 
   private UserEntity user;
   private String accessToken;
