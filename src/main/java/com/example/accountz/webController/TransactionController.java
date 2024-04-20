@@ -1,8 +1,9 @@
 package com.example.accountz.webController;
 
 import com.example.accountz.exception.GlobalException;
-import com.example.accountz.model.SendUnderMillionMoneyDto;
+import com.example.accountz.model.CancelBalanceDto;
 import com.example.accountz.model.SendOverMillionMoneyDto;
+import com.example.accountz.model.SendUnderMillionMoneyDto;
 import com.example.accountz.model.UseBalanceDto;
 import com.example.accountz.security.JwtTokenExtract;
 import com.example.accountz.service.TransactionService;
@@ -41,6 +42,7 @@ public class TransactionController {
       transactionService.saveFailedUseTransaction(
           jwtTokenExtract.currentUser(),
           request.getAccountNumber(),
+          request.getAccountNumber(),
           request.getAmount()
       );
       throw e;
@@ -63,6 +65,7 @@ public class TransactionController {
       transactionService.saveFailedUseTransaction(
           jwtTokenExtract.currentUser(),
           request.getAccountNumber(),
+          request.getAccountNumber(),
           request.getAmount()
       );
       throw e;
@@ -71,7 +74,7 @@ public class TransactionController {
 
   @PreAuthorize("hasRole('USER')")
   @PostMapping("under-million-send-money")
-  public SendUnderMillionMoneyDto.Response sendMoney(
+  public SendUnderMillionMoneyDto.Response underMillionSendMoney(
       @Valid @RequestBody SendUnderMillionMoneyDto.Request request
   ) {
     try {
@@ -87,6 +90,7 @@ public class TransactionController {
       transactionService.saveFailedUseTransaction(
           jwtTokenExtract.currentUser(),
           request.getUserAccountNumber(),
+          request.getReceiverAccountNumber(),
           request.getAmount()
       );
       throw e;
@@ -115,10 +119,37 @@ public class TransactionController {
       transactionService.saveFailedUseTransaction(
           jwtTokenExtract.currentUser(),
           request.getUserAccountNumber(),
+          request.getReceiverAccountNumber(),
           request.getAmount()
       );
       throw e;
     }
   }
-}
 
+  @PreAuthorize("hasRole('USER')")
+  @PostMapping("/cancel-transaction")
+  public CancelBalanceDto.Response cancelBalance(
+      @Valid @RequestBody CancelBalanceDto.Request request
+  ) {
+    try {
+      return CancelBalanceDto.Response.from(
+          transactionService.cancelBalance(
+              jwtTokenExtract.currentUser().getId(),
+              request.getTransactionId(),
+              request.getUserAccountNumber(),
+              request.getReceiverAccountNumber(),
+              request.getAmount()));
+
+    } catch (GlobalException e) {
+      log.error("Failed to use balance.");
+      transactionService.saveFailedUseTransaction(
+          jwtTokenExtract.currentUser(),
+          request.getUserAccountNumber(),
+          request.getReceiverAccountNumber(),
+          request.getAmount()
+      );
+      throw e;
+    }
+  }
+
+}

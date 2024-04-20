@@ -51,7 +51,8 @@ public class TransactionService {
             TransactionResultType.SUCCESS,
             account,
             amount,
-            user));
+            user,
+            account.getAccountNumber()));
   }
 
   private static void saveValidateMoney(
@@ -87,7 +88,8 @@ public class TransactionService {
             TransactionResultType.SUCCESS,
             account,
             amount,
-            user));
+            user,
+            account.getAccountNumber()));
   }
 
   private void validateUseBalance(
@@ -110,11 +112,13 @@ public class TransactionService {
       TransactionResultType transactionResultType,
       AccountEntity account,
       Long amount,
-      UserEntity user
+      UserEntity user,
+      String receiver
   ) {
     return transactionRepository.save(
         TransactionEntity.builder()
             .user(user)
+            .receiverAccountNumber(receiver)
             .transactionType(transactionType)
             .transactionResultType(transactionResultType)
             .account(account)
@@ -130,17 +134,23 @@ public class TransactionService {
 
   @Transactional
   public void saveFailedUseTransaction(
-      UserEntity user, String accountNumber, Long amount) {
-    AccountEntity account = accountRepository.findByAccountNumber(
-        accountNumber).orElseThrow(() ->
+      UserEntity user,
+      String userAccountNumber,
+      String receiverAccountNumber,
+      Long amount) {
+    AccountEntity userAccount = accountRepository.findByAccountNumber(
+        userAccountNumber).orElseThrow(() ->
         new GlobalException(ErrorCode.ACCOUNT_NOT_FOUND));
-
+    AccountEntity receiverAccount = accountRepository.findByAccountNumber(
+        receiverAccountNumber).orElseThrow(
+        () -> new GlobalException(ErrorCode.ACCOUNT_NOT_FOUND));
     saveTransaction(
         TransactionType.USE,
         TransactionResultType.FAIL,
-        account,
+        userAccount,
         amount,
-        user
+        user,
+        receiverAccount.getAccountNumber()
     );
   }
 
@@ -179,7 +189,8 @@ public class TransactionService {
             TransactionResultType.SUCCESS,
             userAccount,
             amount,
-            user));
+            user,
+            receiverAccount.getAccountNumber()));
   }
 
   private void validateUserInfo(String userName, LocalDate userBirthDay,
@@ -236,6 +247,74 @@ public class TransactionService {
             TransactionResultType.SUCCESS,
             userAccount,
             amount,
-            user));
+            user,
+            receiverAccount.getAccountNumber()));
+  }
+
+  @Transactional
+  public TransactionDto cancelBalance(
+      Long userId,
+      String transactionId,
+      String userAccountNumber,
+      String receiverAccountNumber,
+      Long amount
+  ) {
+    UserEntity user = userRepository.findById(userId)
+        .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+
+    TransactionEntity transaction =
+        transactionRepository.findByTransactionId(transactionId)
+            .orElseThrow(() ->
+                new GlobalException(
+                    ErrorCode.TRANSACTION_NOT_FOUND));
+    AccountEntity userAccount =
+        accountRepository.findByAccountNumber(userAccountNumber)
+            .orElseThrow(() ->
+                new GlobalException(
+                    ErrorCode.ACCOUNT_NOT_FOUND));
+    AccountEntity receiverAccount = accountRepository.findByAccountNumber(
+        receiverAccountNumber).orElseThrow(
+        () -> new GlobalException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+    validateCancelBalance(transaction, userAccount, amount);
+    userAccount.cancelBalance(amount);
+    receiverAccount.useBalance(amount);
+    transaction.setTransactionResultType(
+        TransactionResultType.EXPRIED_AFTER_SUCCESS);
+
+    return TransactionDto.fromEntity(
+        saveTransaction(
+            TransactionType.CANCEL,
+            TransactionResultType.SUCCESS,
+            userAccount,
+            amount,
+            user,
+            receiverAccountNumber));
+  }
+
+  private void validateCancelBalance(
+      TransactionEntity transaction,
+      AccountEntity account,
+      Long amount
+  ) {
+    log.info("transaction type" + transaction.getTransactionType());
+
+    if (!Objects.equals(
+        transaction.getAccount().getId(), account.getId())) {
+      throw new GlobalException(
+          ErrorCode.TRANSACTION_ACCOUNT_UNMATCHED);
+    }
+    if (!Objects.equals(transaction.getAmount(), amount)) {
+      throw new GlobalException(
+          ErrorCode.NOT_ALLOWED_SEPARATE_CANCEL);
+    }
+    if (transaction.getTransactedAt().isBefore(
+        LocalDateTime.now().minusYears(1))) {
+      throw new GlobalException(ErrorCode.TOO_OLD_ORDER_TO_CANCEL);
+    }
+    if (Objects.equals(transaction.getTransactionResultType()
+        , TransactionResultType.EXPRIED_AFTER_SUCCESS)) {
+      throw new GlobalException(ErrorCode.EXPIRED_TRANSACTION);
+    }
   }
 }

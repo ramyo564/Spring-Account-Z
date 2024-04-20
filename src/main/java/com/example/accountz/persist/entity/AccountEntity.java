@@ -57,20 +57,29 @@ public class AccountEntity {
   @LastModifiedDate
   private LocalDateTime updatedAt;
 
-  public void saveMoney(Long addMoney){
-    if(addMoney < 0){
+  public void saveMoney(Long addMoney) {
+    if (addMoney < 0) {
       throw new GlobalException(ErrorCode.NOT_MINUS_MONEY);
     }
     balance += addMoney;
   }
 
-  public void useBalance(Long amount){
-    if (amount > balance){
+  public void useBalance(Long amount) {
+    if (amount > balance) {
       throw new GlobalException(ErrorCode.AMOUNT_EXCEED_BALANCE);
     }
     balance -= amount;
 
   }
+
+  public void cancelBalance(Long amount) {
+    if (amount < 0) {
+      throw new GlobalException(ErrorCode.INVALID_REQUEST);
+    }
+    balance += amount;
+
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

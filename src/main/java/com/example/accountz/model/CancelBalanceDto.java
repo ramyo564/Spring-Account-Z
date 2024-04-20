@@ -13,13 +13,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-public class SendUnderMillionMoneyDto {
+public class CancelBalanceDto {
 
   @Getter
   @Setter
   @NoArgsConstructor
   @AllArgsConstructor
   public static class Request {
+
+    @NotBlank
+    private String transactionId;
 
     @NotBlank
     @Size(min = 10, max = 10)
@@ -31,7 +34,7 @@ public class SendUnderMillionMoneyDto {
 
     @NotNull
     @Min(1)
-    @Max(value = 999_999, message = "100만원 이하만 가능합니다.")
+    @Max(1000_000_000)
     private Long amount;
   }
 
