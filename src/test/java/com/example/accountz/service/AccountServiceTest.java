@@ -122,7 +122,7 @@ class AccountServiceTest {
     assertEquals(accountEntity.getId(), deletedAccount.getUserId());
     assertEquals(accountEntity.getAccountNumber(), deletedAccount.getAccountNumber());
     assertEquals(AccountStatus.UNREGISTERED, accountEntity.getAccountStatus());
-    verify(accountRepository, times(1)).save(accountEntity);
+    verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
   }
 
   @Test
