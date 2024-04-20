@@ -43,7 +43,8 @@ public class AccountEntity {
   private AccountStatus accountStatus;
 
   private String accountNumber;
-  private Long balance;
+  @Builder.Default
+  private Long balance = 0L;
 
   private LocalDateTime registeredAt;
   private LocalDateTime unRegisteredAt;
