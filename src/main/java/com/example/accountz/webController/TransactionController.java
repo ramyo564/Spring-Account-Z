@@ -6,6 +6,7 @@ import com.example.accountz.model.CancelBalanceDto;
 import com.example.accountz.model.SendOverMillionMoneyDto;
 import com.example.accountz.model.SendUnderMillionMoneyDto;
 import com.example.accountz.model.TransactionBetweenDateDto;
+import com.example.accountz.model.TransactionNameInfoDto;
 import com.example.accountz.model.TransactionSearchDto;
 import com.example.accountz.model.UseBalanceDto;
 import com.example.accountz.security.JwtTokenExtract;
@@ -233,6 +234,24 @@ public class TransactionController {
   public List<TransactionSearchDto> getFailTransaction() {
     return transactionService.getFailTransaction(
             jwtTokenExtract.currentUser().getId())
+        .stream().map(transactionSearchDto ->
+            TransactionSearchDto.builder()
+                .accountNumber(transactionSearchDto.getAccountNumber())
+                .amount(transactionSearchDto.getAmount())
+                .date(transactionSearchDto.getDate())
+                .sender(transactionSearchDto.getSender())
+                .receiver(transactionSearchDto.getReceiver())
+                .build())
+        .collect(Collectors.toList());
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @PostMapping("/get-receiver-transaction")
+  public List<TransactionSearchDto> getReceiverTransaction(
+      @Valid @RequestBody TransactionNameInfoDto.Request request
+  ) {
+    return transactionService.getReceiverTransaction(
+            jwtTokenExtract.currentUser().getId(), request.getName())
         .stream().map(transactionSearchDto ->
             TransactionSearchDto.builder()
                 .accountNumber(transactionSearchDto.getAccountNumber())

@@ -430,4 +430,17 @@ public class TransactionService {
         .map(TransactionSearchDto::fromEntity)
         .collect(Collectors.toList());
   }
+
+  @Transactional(readOnly = true)
+  public List<TransactionSearchDto> getReceiverTransaction(
+      Long userId, String receiver) {
+    UserEntity user = userRepository.findById(userId)
+        .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+    List<TransactionEntity> listTransaction = transactionRepository
+        .findByReceiverAndUser_Id(receiver, user.getId());
+
+    return listTransaction.stream()
+        .map(TransactionSearchDto::fromEntity)
+        .collect(Collectors.toList());
+  }
 }

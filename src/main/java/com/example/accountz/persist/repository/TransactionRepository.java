@@ -36,4 +36,9 @@ public interface TransactionRepository
   List<TransactionEntity> findByUser_IdAndTransactionResultType(
       Long userId, TransactionResultType resultType);
 
+  // 받는 사람으로 이름 조회
+  List<TransactionEntity> findByReceiverAndUser_Id(String receiver,
+      Long id);
+
+
 }
