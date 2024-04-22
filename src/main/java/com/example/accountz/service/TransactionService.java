@@ -1,7 +1,9 @@
 package com.example.accountz.service;
 
 import com.example.accountz.exception.GlobalException;
+import com.example.accountz.model.TransactionBetweenDateDto;
 import com.example.accountz.model.TransactionDto;
+import com.example.accountz.model.TransactionSearchDto;
 import com.example.accountz.persist.entity.AccountEntity;
 import com.example.accountz.persist.entity.TransactionEntity;
 import com.example.accountz.persist.entity.UserEntity;
@@ -12,15 +14,18 @@ import com.example.accountz.type.AccountStatus;
 import com.example.accountz.type.ErrorCode;
 import com.example.accountz.type.TransactionResultType;
 import com.example.accountz.type.TransactionType;
-import jakarta.transaction.Transactional;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -52,7 +57,9 @@ public class TransactionService {
             account,
             amount,
             user,
-            account.getAccountNumber()));
+            account.getAccountNumber(),
+            account,
+            user.getName()));
   }
 
   private static void saveValidateMoney(
@@ -89,7 +96,9 @@ public class TransactionService {
             account,
             amount,
             user,
-            account.getAccountNumber()));
+            account.getAccountNumber(),
+            account,
+            user.getName()));
   }
 
   private void validateUseBalance(
@@ -113,12 +122,16 @@ public class TransactionService {
       AccountEntity account,
       Long amount,
       UserEntity user,
+      String receiverAccountNumber,
+      AccountEntity receiverAccount,
       String receiver
   ) {
     return transactionRepository.save(
         TransactionEntity.builder()
             .user(user)
-            .receiverAccountNumber(receiver)
+            .receiver(receiver)
+            .receiverAccount(receiverAccount)
+            .receiverAccountNumber(receiverAccountNumber)
             .transactionType(transactionType)
             .transactionResultType(transactionResultType)
             .account(account)
@@ -144,13 +157,16 @@ public class TransactionService {
     AccountEntity receiverAccount = accountRepository.findByAccountNumber(
         receiverAccountNumber).orElseThrow(
         () -> new GlobalException(ErrorCode.ACCOUNT_NOT_FOUND));
+
     saveTransaction(
         TransactionType.USE,
         TransactionResultType.FAIL,
         userAccount,
         amount,
         user,
-        receiverAccount.getAccountNumber()
+        receiverAccount.getAccountNumber(),
+        receiverAccount,
+        receiverAccount.getUser().getName()
     );
   }
 
@@ -190,7 +206,9 @@ public class TransactionService {
             userAccount,
             amount,
             user,
-            receiverAccount.getAccountNumber()));
+            receiverAccount.getAccountNumber(),
+            receiverAccount,
+            receiverAccount.getUser().getName()));
   }
 
   private void validateUserInfo(String userName, LocalDate userBirthDay,
@@ -248,7 +266,9 @@ public class TransactionService {
             userAccount,
             amount,
             user,
-            receiverAccount.getAccountNumber()));
+            receiverAccount.getAccountNumber(),
+            receiverAccount,
+            receiverAccount.getUser().getName()));
   }
 
   @Transactional
@@ -289,7 +309,9 @@ public class TransactionService {
             userAccount,
             amount,
             user,
-            receiverAccountNumber));
+            receiverAccountNumber,
+            receiverAccount,
+            receiverAccount.getUser().getName()));
   }
 
   private void validateCancelBalance(
@@ -316,5 +338,82 @@ public class TransactionService {
         , TransactionResultType.EXPRIED_AFTER_SUCCESS)) {
       throw new GlobalException(ErrorCode.EXPIRED_TRANSACTION);
     }
+  }
+
+  @Transactional(readOnly = true)
+  public List<TransactionSearchDto> getTransaction(
+      Long userId) {
+    UserEntity user = userRepository.findById(userId)
+        .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+    List<TransactionEntity> listTransaction = transactionRepository
+        .findByUser_IdOrderByTransactedAtDesc(user.getId());
+
+    return listTransaction.stream()
+        .map(TransactionSearchDto::fromEntity)
+        .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  public List<TransactionSearchDto> getOrderByReceiveMoney(
+      String accountNumber) {
+
+    AccountEntity userAccount = accountRepository.findByAccountNumber(
+            accountNumber)
+        .orElseThrow(() ->
+            new GlobalException(
+                ErrorCode.ACCOUNT_NOT_FOUND));
+
+    List<TransactionEntity> listTransaction = transactionRepository
+        .findByReceiverAccount_IdOrderByTransactedAtDesc(
+            userAccount.getId());
+
+    return listTransaction.stream()
+        .map(TransactionSearchDto::fromEntity)
+        .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  public List<TransactionSearchDto> getOrderByName(Long userId) {
+    UserEntity user = userRepository.findById(userId)
+        .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+
+    List<TransactionEntity> listTransaction = transactionRepository
+        .findByUser_IdOrderByReceiverAccount_User_NameAsc(user.getId());
+
+    return listTransaction.stream()
+        .map(TransactionSearchDto::fromEntity)
+        .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  public List<TransactionSearchDto> getBetweenDate(
+      Long userId, LocalDate firstDate, LocalDate lastDate
+  ) {
+    UserEntity user = userRepository.findById(userId)
+        .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+    LocalDateTime startOfDay = firstDate.atStartOfDay();
+    LocalDateTime endOfDay = lastDate.atStartOfDay();
+
+    List<TransactionEntity> listTransaction = transactionRepository
+        .findAllByTransactedAtBetween(
+            startOfDay, endOfDay);
+
+    return listTransaction.stream()
+        .map(TransactionSearchDto::fromEntity)
+        .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  public List<TransactionSearchDto> getFailTransaction(
+      Long userId) {
+    UserEntity user = userRepository.findById(userId)
+        .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+    List<TransactionEntity> listTransaction = transactionRepository
+        .findByUser_IdAndTransactionResultType(user.getId(),
+            TransactionResultType.FAIL);
+
+    return listTransaction.stream()
+        .map(TransactionSearchDto::fromEntity)
+        .collect(Collectors.toList());
   }
 }

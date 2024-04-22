@@ -50,6 +50,7 @@ public class UserEntity implements UserDetails {
   private String email;
   private LocalDate birthDay;
   private String password;
+  
 
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "member_roles", joinColumns = @JoinColumn(name = "member_id"))
