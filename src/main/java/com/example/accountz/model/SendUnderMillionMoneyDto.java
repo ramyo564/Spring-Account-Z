@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-public class UseBalanceDto {
+public class SendUnderMillionMoneyDto {
 
   @Getter
   @Setter
@@ -23,11 +23,15 @@ public class UseBalanceDto {
 
     @NotBlank
     @Size(min = 10, max = 10)
-    private String accountNumber;
+    private String userAccountNumber;
+
+    @NotBlank
+    @Size(min = 10, max = 10)
+    private String receiverAccountNumber;
 
     @NotNull
     @Min(1)
-    @Max(1000_000_000)
+    @Max(value = 999_999, message = "100만원 이하만 가능합니다.")
     private Long amount;
   }
 
@@ -38,7 +42,8 @@ public class UseBalanceDto {
   @Builder
   public static class Response {
 
-    private String accountNumber;
+    private String userAccountNumber;
+    private String receiverAccountNumber;
     private TransactionResultType transactionResultType;
     private String transactionId;
     private Long amount;
@@ -47,7 +52,8 @@ public class UseBalanceDto {
 
     public static Response from(TransactionDto transactionDto) {
       return Response.builder()
-          .accountNumber(transactionDto.getUserAccountNumber())
+          .userAccountNumber(transactionDto.getUserAccountNumber())
+          .receiverAccountNumber(transactionDto.getReceiverAccountNumber())
           .transactionResultType(transactionDto.getTransactionResultType())
           .transactionId(transactionDto.getTransactionId())
           .amount(transactionDto.getAmount())

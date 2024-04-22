@@ -36,12 +36,19 @@ public class TransactionEntity {
   private Long id;
 
   @ManyToOne
-  private UserEntity userId;
+  private UserEntity user;
+
+  private String receiver;
+
+  @ManyToOne
+  private AccountEntity receiverAccount;
 
   @ManyToOne
   private AccountEntity account;
+
   private Long amount;
   private Long balanceSnapshot;
+  private String receiverAccountNumber;
 
   @CreatedDate
   private LocalDateTime createdAt;

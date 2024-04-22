@@ -10,11 +10,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 public class CreateAccountDto {
+
   @Getter
   @Setter
   @NoArgsConstructor
   @AllArgsConstructor
   public static class Request {
+
     @NotNull
     @Min(1)
     private Long userId;
@@ -30,11 +32,12 @@ public class CreateAccountDto {
   @AllArgsConstructor
   @Builder
   public static class Response {
+
     private Long userId;
     private String accountNumber;
     private LocalDateTime registeredAt;
 
-    public static Response from(AccountDto accountDto){
+    public static Response from(AccountDto accountDto) {
       return Response.builder()
           .userId(accountDto.getUserId())
           .accountNumber(accountDto.getAccountNumber())

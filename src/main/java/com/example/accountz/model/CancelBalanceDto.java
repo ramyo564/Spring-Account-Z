@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-public class UseBalanceDto {
+public class CancelBalanceDto {
 
   @Getter
   @Setter
@@ -22,8 +22,15 @@ public class UseBalanceDto {
   public static class Request {
 
     @NotBlank
+    private String transactionId;
+
+    @NotBlank
     @Size(min = 10, max = 10)
-    private String accountNumber;
+    private String userAccountNumber;
+
+    @NotBlank
+    @Size(min = 10, max = 10)
+    private String receiverAccountNumber;
 
     @NotNull
     @Min(1)
@@ -38,7 +45,8 @@ public class UseBalanceDto {
   @Builder
   public static class Response {
 
-    private String accountNumber;
+    private String userAccountNumber;
+    private String receiverAccountNumber;
     private TransactionResultType transactionResultType;
     private String transactionId;
     private Long amount;
@@ -47,7 +55,8 @@ public class UseBalanceDto {
 
     public static Response from(TransactionDto transactionDto) {
       return Response.builder()
-          .accountNumber(transactionDto.getUserAccountNumber())
+          .userAccountNumber(transactionDto.getUserAccountNumber())
+          .receiverAccountNumber(transactionDto.getReceiverAccountNumber())
           .transactionResultType(transactionDto.getTransactionResultType())
           .transactionId(transactionDto.getTransactionId())
           .amount(transactionDto.getAmount())

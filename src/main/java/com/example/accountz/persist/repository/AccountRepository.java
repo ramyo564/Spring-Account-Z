@@ -8,12 +8,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AccountRepository
-        extends JpaRepository<AccountEntity, Long> {
+    extends JpaRepository<AccountEntity, Long> {
 
-    Integer countByUser(UserEntity user);
+  Integer countByUser(UserEntity user);
 
-    Optional<AccountEntity> findFirstByOrderByIdDesc();
+  Optional<AccountEntity> findFirstByOrderByIdDesc();
 
-    Optional<AccountEntity> findByAccountNumber(String AccountNumber);
+  Optional<AccountEntity> findByAccountNumber(String AccountNumber);
 
 }

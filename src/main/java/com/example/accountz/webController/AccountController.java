@@ -39,5 +39,4 @@ public class AccountController {
         jwtTokenExtract.currentUser().getId(),
         request.getAccountNumber()));
   }
-
 }

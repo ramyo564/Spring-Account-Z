@@ -14,6 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class AccountDto {
+
   private Long userId;
   private String accountNumber;
   private Long balance;
@@ -21,7 +22,7 @@ public class AccountDto {
   private LocalDateTime registeredAt;
   private LocalDateTime unRegisteredAt;
 
-  public static AccountDto fromEntity(AccountEntity account){
+  public static AccountDto fromEntity(AccountEntity account) {
     return AccountDto.builder()
         .userId(account.getId())
         .accountNumber(account.getAccountNumber())

@@ -73,7 +73,7 @@ public class AccountService {
 
     account.setAccountStatus(AccountStatus.UNREGISTERED);
     account.setUnRegisteredAt(LocalDateTime.now());
-    
+
     return AccountDto.fromEntity(account);
   }
 
