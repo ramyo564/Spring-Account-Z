@@ -36,6 +36,7 @@ public enum ErrorCode {
   TOO_OLD_ORDER_TO_CANCEL("1년이지난 거래는 취소가 불가능합니다."),
   INVALID_REQUEST("잘못된 요청입니다."),
   EXPIRED_TRANSACTION("이미 취소가 된 거래입니다."),
+  WRONG_DATE("시작 날짜는 종료 날짜보다 이전이어야 합니다."),
 
   //
   INTERNAL_SERVER_ERROR("내부 서버 오류");

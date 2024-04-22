@@ -27,9 +27,10 @@ public interface TransactionRepository
   List<TransactionEntity> findByUser_IdOrderByReceiverAccount_User_NameAsc(
       Long id);
 
-  // 지정 날짜 조회 888888888888888888888888888888888888888
-  List<TransactionEntity> findAllByTransactedAtBetween(
-      LocalDateTime transactedAtStart, LocalDateTime transactedAtEnd);
+  // 지정 날짜 조회
+  List<TransactionEntity> findByTransactedAtBetweenAndUser_Id(
+      LocalDateTime transactedAtStart, LocalDateTime transactedAtEnd,
+      Long id);
 
   // 실패한 거래
   List<TransactionEntity> findByUser_IdAndTransactionResultType(

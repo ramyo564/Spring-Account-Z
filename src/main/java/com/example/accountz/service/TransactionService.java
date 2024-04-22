@@ -1,7 +1,6 @@
 package com.example.accountz.service;
 
 import com.example.accountz.exception.GlobalException;
-import com.example.accountz.model.TransactionBetweenDateDto;
 import com.example.accountz.model.TransactionDto;
 import com.example.accountz.model.TransactionSearchDto;
 import com.example.accountz.persist.entity.AccountEntity;
@@ -14,7 +13,6 @@ import com.example.accountz.type.AccountStatus;
 import com.example.accountz.type.ErrorCode;
 import com.example.accountz.type.TransactionResultType;
 import com.example.accountz.type.TransactionType;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -391,16 +389,32 @@ public class TransactionService {
   ) {
     UserEntity user = userRepository.findById(userId)
         .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
-    LocalDateTime startOfDay = firstDate.atStartOfDay();
-    LocalDateTime endOfDay = lastDate.atStartOfDay();
+    validateDate result = getValidateDate(firstDate, lastDate);
 
     List<TransactionEntity> listTransaction = transactionRepository
-        .findAllByTransactedAtBetween(
-            startOfDay, endOfDay);
+        .findByTransactedAtBetweenAndUser_Id(result.startOfDay(),
+            result.endOfDay(), user.getId());
 
     return listTransaction.stream()
         .map(TransactionSearchDto::fromEntity)
         .collect(Collectors.toList());
+  }
+
+  private static validateDate getValidateDate(LocalDate firstDate,
+      LocalDate lastDate) {
+    LocalDateTime startOfDay = firstDate.atStartOfDay();
+    LocalDateTime endOfDay = lastDate.atStartOfDay().plusDays(1)
+        .minusSeconds(1);
+    if (startOfDay.isAfter(endOfDay) || startOfDay.isEqual(endOfDay)) {
+      throw new GlobalException(ErrorCode.WRONG_DATE);
+    }
+    validateDate result = new validateDate(startOfDay, endOfDay);
+    return result;
+  }
+
+  private record validateDate(LocalDateTime startOfDay,
+                              LocalDateTime endOfDay) {
+
   }
 
   @Transactional(readOnly = true)
